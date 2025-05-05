@@ -1,0 +1,23 @@
+---
+- name: Run Kubernetes and App Setup Scripts
+  hosts: k8s_node
+  tasks:
+    - name: Copy kubeadm.sh to remote host
+      copy:
+        src: files/kubeadm.sh
+        dest: /tmp/kubeadm.sh
+        mode: '0755'
+    - name: Copy config.sh to remote host
+      copy:
+        src: files/config.sh
+        dest: /tmp/config.sh
+        mode: '0755'
+    - name: Execute k8s setup script
+      shell: /tmp/kubeadm.sh
+      become: true
+    - name: Set up kubeconfig for the current user
+      shell: |
+        mkdir -p /home/ubuntu/.kube
+        cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+        chown 1000:1000 /home/ubuntu/.kube/config
+      become: true
